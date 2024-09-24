@@ -94,6 +94,8 @@ require_once __DIR__ . '/CacherImpl.php';
 abstract class DbSimple_Database extends DbSimple_LastError
 {
     private $attributes = null;
+    /** @var bool режим "только чтение" */
+    public $readonly = false;
     /**
      * Public methods.
      */
@@ -226,6 +228,9 @@ abstract class DbSimple_Database extends DbSimple_LastError
     {
         $args = func_get_args();
         $total = false;
+        if($this->readonly){
+            $this->_setLastError(-1, "Can't INSERT or UPDATE: readonly mode");
+        }
         return $this->_query($args, $total);
     }
 
@@ -338,6 +343,13 @@ abstract class DbSimple_Database extends DbSimple_LastError
     {
         $this->_className = $name;
         return $this;
+    }
+
+    public function setReadonly($readonly)
+    {
+        $old = $this->readonly;
+        if ($readonly !== null) $this->readonly = $readonly;
+        return $old;
     }
 
     /**
